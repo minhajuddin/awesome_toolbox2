@@ -14,5 +14,8 @@ config :awesome_toolbox, AwesomeToolboxWeb.Endpoint,
   http: [port: 4002],
   server: false
 
+config :awesome_toolbox,
+  github_api: AwesomeToolboxTest.FakeGithub
+
 # Print only warnings and errors during test
 config :logger, level: :warn
