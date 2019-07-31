@@ -20,19 +20,12 @@ defmodule AwesomeToolbox do
 
   defp annotate_line(line) do
     # if line contains a github link, get its star count and append it to the link
-    repo_names =
-      Regex.named_captures(~r{https://github.com/(?<repo_name>[^/]+/[A-Za-z0-9._-]+)}, line)
-
-    if repo_names do
-      case @github_api.star_count(repo_names["repo_name"]) do
-        {:ok, star_count} ->
-          "#{line} [#{star_count} :star:]"
-
-        _ ->
-          line
-      end
+    with repo_names when not is_nil(repo_names) <-
+           Regex.named_captures(~r{https://github.com/(?<repo_name>[^/]+/[A-Za-z0-9._-]+)}, line),
+         {:ok, star_count} <- @github_api.star_count(repo_names["repo_name"]) do
+      "#{line} [#{star_count} :star:]"
     else
-      line
+      _ -> line
     end
   end
 end
