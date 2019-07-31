@@ -1,7 +1,5 @@
 defmodule AwesomeToolbox do
-  alias AwesomeToolbox.Github
-
-  @github_api Application.get_env(:awesome_toolbox, :github_api)
+  @github_api Application.get_env(:awesome_toolbox, :github_api, AwesomeToolbox.Github)
 
   @doc """
   Takes a github repo url like "h4cc/awesome-elixir" and spits out an annotated awesome list.
@@ -22,13 +20,19 @@ defmodule AwesomeToolbox do
 
   defp annotate_line(line) do
     # if line contains a github link, get its star count and append it to the link
-    repo_names = Regex.named_captures(~r{https://github.com/(?<repo_name>[^/]+/[^/]+)}, line)
+    repo_names =
+      Regex.named_captures(~r{https://github.com/(?<repo_name>[^/]+/[A-Za-z0-9._-]+)}, line)
 
     if repo_names do
-      "#{line} [#{@github_api.star_count(repo_names["repo_name"])} :star:]"
+      case @github_api.star_count(repo_names["repo_name"]) do
+        {:ok, star_count} ->
+          "#{line} [#{star_count} :star:]"
+
+        _ ->
+          line
+      end
     else
       line
     end
   end
-
 end
